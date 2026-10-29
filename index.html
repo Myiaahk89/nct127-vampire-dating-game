@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>NCT 127: Vampire Hearts</title>
+
+<style>
+
+*{box-sizing:border-box}
+
+body{margin:0;background:#090509;color:#f7e9ed;font-family:Georgia,serif}
+
+header{text-align:center;padding:35px 15px;background:linear-gradient(#17050d,#090509);border-bottom:1px solid #8f1838}
+
+header p{color:#e9a3b4;letter-spacing:4px}
+
+h1{font-size:clamp(32px,7vw,60px);color:#d92c52;text-shadow:0 0 22px #a20d30;margin:12px}
+
+main{max-width:850px;margin:auto;padding:20px}
+
+.panel{background:#160b12;border:1px solid #692039;border-radius:12px;padding:22px;margin:18px 0;box-shadow:0 0 22px #310817}
+
+h2{color:#f06b8c}
+
+button{background:#250a15;color:#ffe7ed;border:1px solid #c52c51;padding:13px 16px;margin:6px;border-radius:8px;font:inherit;cursor:pointer}
+
+button:hover{background:#8c1735}
+
+.members{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px}
+
+.member{min-height:65px}
+
+.small{color:#d49ba9;font-size:14px}
+
+#story{font-size:18px;line-height:1.7;white-space:pre-line}
+
+#choices{display:grid;gap:8px}
+
+#choices button{text-align:left}
+
+.bar{height:8px;background:#34111e;border-radius:9px;overflow:hidden}
+
+#fill{height:100%;width:0;background:#f33e67;transition:width .3s}
+
+footer{text-align:center;color:#b58a97;padding:25px;font-size:13px}
+
+</style>
+
+</head>
+
+<body>
+
+<header>
+
+<p>A GOTHIC ROMANCE VISUAL NOVEL</p>
+
+<h1>🩸 VAMPIRE HEARTS 🩸</h1>
+
+<div>NCT 127 • ONE NIGHT • NINE SECRETS</div>
+
+<p>Will you risk your heart for an immortal?</p>
+
+</header>
+
+<main>
+
+<section class="panel" id="intro">
+
+<h2>The Midnight Invitation</h2>
+
+<p>The year is 1899. A blood-red moon hangs above a castle hidden in the mountains. An invitation arrives at your door, sealed with a black rose.</p>
+
+<p><i>“Come before midnight. Someone inside has waited centuries for you.”</i></p>
+
+<p>You enter the ballroom. Nine mysterious vampires turn to look at you. One of them seems to recognize your face.</p>
+
+<button onclick="showMembers()">Enter the castle →</button>
+
+</section>
+
+<section class="panel" id="selection" hidden>
+
+<h2>Choose Your Vampire</h2>
+
+<p class="small">Every vampire hides a secret. Choose carefully.</p>
+
+<div class="members" id="members"></div>
+
+</section>
+
+<section class="panel" id="game" hidden>
+
+<div class="small" id="route"></div>
+
+<h2 id="sceneTitle"></h2>
+
+<div class="bar"><div id="fill"></div></div>
+
+<p class="small" id="score"></p>
+
+<p id="story"></p>
+
+<div id="choices"></div>
+
+</section>
+
+<section class="panel" id="ending" hidden>
+
+<h2 id="endingTitle">Your Ending</h2>
+
+<p id="endingText"></p>
+
+<button onclick="restart()">Play Again ↻</button>
+
+</section>
+
+<footer>Fan-made fictional game for entertainment. Not affiliated with NCT 127.</footer>
+
+</main>
+
+<script>
+
+const vampires=[
+
+{name:"Taeil",type:"The Ancient Soul",line:"I've waited longer than you can imagine.",secret:"He remembers a promise made in another lifetime."},
+
+{name:"Johnny",type:"The Charming Count",line:"Darling, this castle is much less dangerous with me beside you.",secret:"He is planning to defy the vampire council for you."},
+
+{name:"Taeyong",type:"The Cursed Prince",line:"Stay close. There are things in this castle that hunger for your heart.",secret:"A curse says loving a human will cost him his immortality."},
+
+{name:"Yuta",type:"The Shadow Hunter",line:"You should be afraid of me. So why aren't you?",secret:"He was ordered to watch you, but has begun protecting you."},
+
+{name:"Doyoung",type:"The Secret Guardian",line:"I know why you were invited. I only wish I could tell you.",secret:"He has secretly protected your family for generations."},
+
+{name:"Jaehyun",type:"The Eternal Heartbreaker",line:"One dance, and perhaps I'll tell you why I never leave this room.",secret:"He has not allowed himself to love in centuries."},
+
+{name:"Jungwoo",type:"The Enchanted Vampire",line:"Don't worry. I only bite people who deserve it. Usually.",secret:"His gentle smile conceals a rare and dangerous power."},
+
+{name:"Mark",type:"The Reluctant Vampire",line:"I know a way out. But honestly? I kind of want you to stay.",secret:"He dreams of escaping his immortal life."},
+
+{name:"Haechan",type:"The Mischievous Temptation",line:"Already choosing a favorite? I do hope it's me.",secret:"He can sense when someone is hiding their true feelings."}
+
+];
+
+let chosen=null,affection=0,step=0;
+
+function showMembers(){
+
+document.getElementById("intro").hidden=true;
+
+document.getElementById("selection").hidden=false;
+
+document.getElementById("members").innerHTML=vampires.map((v,i)=>`<button class="member" onclick="choose(${i})">🦇 ${v.name}<br><span class="small">${v.type}</span></button>`).join("");
+
+}
+
+function choose(i){
+
+chosen=vampires[i];affection=0;step=0;
+
+document.getElementById("selection").hidden=true;
+
+document.getElementById("game").hidden=false;
+
+render();
+
+}
+
+const scenes=[
+
+{title:"A Stranger's Warning",story:"Your vampire watches you beneath the candlelight.\n\n“"+ "You shouldn't have come here,” they whisper. “But now that you're here, tell me: do you trust me?”",options:["Take their hand.","Smile and ask what they're hiding.","Step closer and meet their gaze."]},
+
+{title:"The Forbidden Library",story:"Your vampire leads you to a library filled with ancient books. A portrait on the wall looks exactly like you.\n\n“Your family has a connection to this castle,” they confess. “Would you like the truth?”",options:["Ask them to tell you everything.","Tell them you trust them already.","Tease them for being so mysterious."]},
+
+{title:"The Blood Moon",story:"Thunder shakes the windows. Your vampire stands before you, their eyes glowing crimson.\n\n“If you stay, your life will change forever. I cannot promise you an easy love.”",options:["“I choose you, even so.”","“Prove that your feelings are real.”","“Let's face the future together.”"]}
+
+];
+
+function render(){
+
+let s=scenes[step];
+
+document.getElementById("route").textContent="YOUR ROUTE: "+chosen.name.toUpperCase()+" • "+chosen.type;
+
+document.getElementById("sceneTitle").textContent=s.title;
+
+document.getElementById("story").textContent=chosen.line+"\n\n"+s.story;
+
+document.getElementById("score").textContent="♥ AFFECTION: "+affection+" / 6";
+
+document.getElementById("fill").style.width=(affection/6*100)+"%";
+
+document.getElementById("choices").innerHTML=s.options.map((o,i)=>`<button onclick="answer(${i})">${["♥","✦","🩸"][i]} ${o}</button>`).join("");
+
+}
+
+function answer(i){
+
+affection+=i===0?2:1;
+
+step++;
+
+if(step>=scenes.length){
+
+document.getElementById("game").hidden=true;
+
+document.getElementById("ending").hidden=false;
+
+let titles=["Eternal Love 🩸","The Secret Keeper 🌹","Bound by the Blood Moon 🌙"];
+
+document.getElementById("endingTitle").textContent=affection>=5?titles[0]:affection>=4?titles[1]:titles[2];
+
+document.getElementById("endingText").textContent="Your vampire takes your hand. "+chosen.secret+" As the blood moon rises, "+chosen.name+" whispers: “"+(affection>=5?"Stay with me, and let eternity begin.":affection>=4?"There is still so much you don't know about me.":"Whatever happens next, I will remember this night.")+"” Your story together has only just begun.";
+
+}else render();
+
+}
+
+function restart(){
+
+document.getElementById("ending").hidden=true;
+
+document.getElementById("game").hidden=true;
+
+document.getElementById("intro").hidden=false;
+
+chosen=null;affection=0;step=0;
+
+}
+
+</script>
+
+</body>
+
+</html>
